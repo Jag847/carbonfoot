@@ -6,4 +6,4 @@ matplotlib==3.10.1
 pandas==2.2.3
 plotly==6.0.1
 kaleido
-streamlit-animated-number
+

@@ -1,6 +1,7 @@
 # app.py
 import streamlit as st
 from auth import login
+from sqlalchemy import extract
 from database import init_db, Session, User, Emission
 from datetime import date
 import numpy as np
@@ -502,8 +503,8 @@ elif menu == "Carbon Metre":
         records = db.query(Emission).filter(
             Emission.user_id == user.id,
             Emission.facility == selected_facility,
-            Emission.date.year == selected_year,
-            Emission.date.strftime("%B") == selected_month
+            extract('year', Emission.date) == selected_year,
+            extract('month', Emission.date) == MONTHS.index(selected_month) + 1
         ).all()
 
         for rec in records:
@@ -587,8 +588,8 @@ elif menu == "Emission Analysis":
                         )
 
                 # Totals
-                total_emission = df_filtered["Emission"].sum()
-                total_offset=df_filtered["offset"].sum()
+                total_emission = df_filtered[df_filtered["Category"] != "Offset"]["Emission"].sum()
+                total_offset= df_filtered[df_filtered["Category"] == "Offset"]["Emission"].sum()
                 net_emission = total_emission - total_offset 
 
                 st.divider()
@@ -606,7 +607,6 @@ elif menu == "Emission Analysis":
                     )
 
                 with total_cols[2]:
-                    color = "green" if net_emission <= 0 else "red"
                     st.metric(
                         label="**Net Emission**",
                         value=f"{net_emission:.2f} kg CO₂e",

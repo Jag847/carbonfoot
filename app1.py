@@ -793,7 +793,7 @@ elif menu == "Download":
 
 elif menu == "Offset Contribution":
     st.header("Offset Contribution")
-    col1 = st.columns(1)
+    col1, = st.columns(1)
     with col1:
         trees_count7 = st.number_input("Number of Trees", min_value=0, format="%d", key="offset_trees_count"
 )

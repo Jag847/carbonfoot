@@ -10,7 +10,7 @@ import plotly.express as px
 import plotly.io as pio
 import io, zipfile
 import plotly.graph_objects as go
-from streamlit_animated_number import animated_number
+
 FACILITIES = [
     "Residential Areas",
     "Hostels",
@@ -545,8 +545,10 @@ elif menu == "Emission Analysis":
                 for idx, category in enumerate(categories):
                     value = df_breakdown[df_breakdown["Category"] == category]["Emission"].sum()
                     with cols[idx % 3]:
-                        st.markdown(f"**{category}**")
-                        animated_number(value, format_func=lambda x: f"{x:.2f} kg CO₂e")
+                        st.metric(
+                             label=f"**{category}**",
+                             value=f"{value:.2f} kg CO₂e"
+                        )
 
                 # Totals
                 total_emission = df_filtered["Emission"].sum()
@@ -557,15 +559,24 @@ elif menu == "Emission Analysis":
 
                 total_cols = st.columns(3)
                 with total_cols[0]:
-                    st.markdown("**Total Emission (before offset)**")
-                    animated_number(total_emission, format_func=lambda x: f"{x:.2f} kg CO₂e")
+                    st.metric(
+                        label="**Total Emission (before offset)**",
+                        value=f"{total_emission:.2f} kg CO₂e"
+                    )
                 with total_cols[1]:
-                    st.markdown("**Offset**")
-                    animated_number(offset, format_func=lambda x: f"{x:.2f} kg CO₂e")
-                with total_cols[2]:
-                    st.markdown("**Net Emission**")
-                    animated_number(net_emission, format_func=lambda x: f"{x:.2f} kg CO₂e")
+                    st.metric(
+                        label="**Offset**",
+                        value=f"{offset:.2f} kg CO₂e"
+                    )
 
+                with total_cols[2]:
+                    color = "green" if net_emission <= 0 else "red"
+                    st.metric(
+                        label="**Net Emission**",
+                        value=f"{net_emission:.2f} kg CO₂e",
+                        delta=f"{'Reduction' if net_emission <=0 else 'Increase'}",
+                        delta_color="inverse"
+                    )
                 st.divider()
 
                 # --- Charts and Table ---

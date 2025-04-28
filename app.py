@@ -793,14 +793,8 @@ elif menu == "Download":
 
 elif menu == "Offset Contribution":
     st.header("Offset Contribution")
-    col1, col2 = st.columns(2)
+    col1 = st.columns(1)
     with col1:
-        facility7 = st.selectbox("Facility", ["Choose Facility"] + FACILITIES)
-        year7 = st.number_input("Year", min_value=0, format="%d", value=date.today().year)
-        month7 = st.selectbox("Month", ["Choose Month", "January", "February", "March", "April", "May", "June",
-                                       "July", "August", "September", "October", "November", "December"])
-        water_area = st.number_input("Area Covered Under Water (m²)", min_value=0.0, format="%.2f")
-    with col2:
         trees_count7 = st.number_input("Number of Trees", min_value=0, format="%d", key="offset_trees_count"
 )
         soil_area7 = st.number_input("Area Covered Under Soil (m²)", min_value=0.0, format="%.2f", key="offset_soil_area")

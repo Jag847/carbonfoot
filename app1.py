@@ -200,10 +200,7 @@ def plot_gauge(current_value, category, safe_limit):
         }
     ))
     
-    fig.update_traces(
-        selector=dict(type='indicator'),
-        gauge_animation_duration=1000  # 1000 ms = 1 second animation
-    )
+   
     fig.update_layout(
         margin = {'t': 40, 'b': 0, 'l': 0, 'r': 0},
         height=300,

@@ -499,15 +499,18 @@ elif menu == "Carbon Metre":
     ):
         # Initialize totals per category
         category_totals = {cat: 0.0 for cat in SAFE_LIMITS}
+        records = db.query(Emission).filter(
+            Emission.user_id == user.id,
+            Emission.facility == selected_facility,
+            Emission.date.year == selected_year,
+            Emission.date.strftime("%B") == selected_month
+        ).all()
 
-        for entry in st.session_state.emission_log:
-            if (
-                str(entry["Year"]) == str(selected_year) and
-                entry["Month"] == selected_month and
-                entry["Facility"] == selected_facility
-            ):
-                if entry["Factor"] in category_totals:
-                    category_totals[entry["Factor"]] += abs(entry["Emission"])
+        for rec in records:
+            if rec.category in category_totals:
+                category_totals[rec.category] += abs(rec.value)
+
+        
 
         # Display gauge meters
         cols = st.columns(3)

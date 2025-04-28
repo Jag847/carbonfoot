@@ -169,7 +169,7 @@ def log_emission(category, facility, year, month, value):
         date=date(int(year), MONTHS.index(month)+1, 1),
         facility=facility,
         category=category,
-        value=value
+        value=abs(value) if category == "Offset" else value
     )
     db.add(entry)
     db.commit()
@@ -451,6 +451,39 @@ if menu == "Carbon Data":
                         "Factor": "Travel",
                         "Emission": emission
                     })
+    with st.expander("Offset Contribution"):
+        st.subheader("Carbon Offset")
+        with st.form("offset_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                trees = st.number_input("Number of Trees", min_value=0, format="%d")
+                soil_area = st.number_input("Soil Area (m²)", min_value=0.0, format="%f")
+            with col2:
+                grass_area = st.number_input("Grass Area (m²)", min_value=0.0, format="%f")
+                water_area = st.number_input("Water Area (m²)", min_value=0.0, format="%f")
+        
+            submitted_offset = st.form_submit_button("Submit Offset Data")
+    
+        if submitted_offset:
+             if facility == "Choose Facility" or month == "Choose Month":
+                 st.warning("Please select facility and month first.")
+             else:
+            # Calculate offset
+                  offset_value = (trees * of_e_f["tree"] + 
+                          soil_area * of_e_f["soil"] + 
+                          grass_area * of_e_f["grass"] + 
+                          water_area * of_e_f["water"])
+            
+                  log_emission("Offset", facility, year, month, offset_value)
+                  st.session_state.emission_log.append({
+                      "Year": year,
+                      "Month": month,
+                      "Facility": facility,
+                      "Factor": "Offset",
+                      "Emission": offset_value
+                  })
+                  st.success(f"Offset contribution recorded: {offset_value:.2f} kg CO₂e")  
+
 elif menu == "Carbon Metre":
     st.header("Carbon Footprint Summary")
 
@@ -512,8 +545,10 @@ elif menu == "Emission Analysis":
         "Month": rec.date.strftime("%B"),
         "Facility": rec.facility,
         "Category": rec.category,
-        "Emission": rec.value
+        "Emission": rec.valuel,
+        "Emissions (kg CO₂)": rec.value if rec.category != "Offset" else -rec.value    
     } for rec in records])
+    
 
     if df.empty:
         st.info("No emissions data available.")
@@ -539,7 +574,8 @@ elif menu == "Emission Analysis":
 
                 df_breakdown = df_filtered.groupby("Category")["Emission"].sum().reset_index()
 
-                categories = ["Fossil Fuels", "Fugitive", "Electricity", "Water", "Waste", "Travel"]
+                categories = ["Fossil Fuels", "Fugitive", "Electricity", "Water", "Waste", "Travel","Offset"]
+                
 
                 cols = st.columns(3)
                 for idx, category in enumerate(categories):
@@ -552,8 +588,8 @@ elif menu == "Emission Analysis":
 
                 # Totals
                 total_emission = df_filtered["Emission"].sum()
-                offset = 999.91  # Static
-                net_emission = total_emission - offset
+                total_offset=df_filtered["offset"].sum()
+                net_emission = total_emission - total_offset 
 
                 st.divider()
 
@@ -566,7 +602,7 @@ elif menu == "Emission Analysis":
                 with total_cols[1]:
                     st.metric(
                         label="**Offset**",
-                        value=f"{offset:.2f} kg CO₂e"
+                        value=f"{total_offset:.2f} kg CO₂e"
                     )
 
                 with total_cols[2]:

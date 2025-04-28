@@ -112,16 +112,20 @@ if st.button("Let’s get started"):
 if not st.session_state.get("started"):
     st.stop()
 
+admin_username = "dhamarukanath"
 # 4. Sidebar menu
-menu = st.sidebar.radio("Navigate", [
+menu_options = [
     "Carbon Data",
     "Carbon Metre",
     "Emission Analysis",
     "Year and Facility Analysis",
     "Download",
     "Offset Contribution"
-])
+]
+if st.session_state.get("username") == admin_username:
+    menu_options.append("Manage Database")
 
+menu = st.sidebar.radio("Navigate", menu_options)
 # 5. Get DB session & current user
 db = Session()
 user = db.query(User).filter_by(name=name).first()
@@ -825,3 +829,87 @@ elif menu == "Offset Contribution":
      """)
 
     
+elif menu == "Manage Database":
+    st.header("🛠 Manage Database (Admin Only)")
+
+    # 1. Overall Emission Record Stats
+    total_records = db.query(Emission).count()
+    zero_emission_count = db.query(Emission).filter(Emission.value == 0).count()
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("📋 Total Emission Records", total_records)
+    with col2:
+        st.metric("🚫 Zero Emission Records", zero_emission_count)
+
+    st.divider()
+
+    # 2. Registered Users
+    total_users = db.query(User).count()
+    st.metric("👥 Total Registered Users", total_users)
+
+    st.divider()
+
+    # 3. User-wise Emission Entry Count
+    st.subheader("👤 Entries Per User")
+    user_emission_counts = db.query(User.name, db.func.count(Emission.id))\
+                             .join(Emission, Emission.user_id == User.id)\
+                             .group_by(User.name)\
+                             .all()
+
+    if user_emission_counts:
+        df_user_emissions = pd.DataFrame(user_emission_counts, columns=["Username", "Emission Entries"])
+        st.dataframe(df_user_emissions)
+    else:
+        st.info("No user emission entries yet.")
+
+    st.divider()
+
+    # 4. Clean Zero Emission Records
+    st.subheader("🧹 Clean Zero Emission Records")
+
+    if st.button("Delete Zero Emission Records"):
+        if zero_emission_count > 0:
+            zero_records = db.query(Emission).filter(Emission.value == 0).all()
+            for record in zero_records:
+                db.delete(record)
+            db.commit()
+            st.success(f"✅ Successfully deleted {zero_emission_count} zero-emission record(s)!")
+        else:
+            st.info("No zero-emission records found.")
+
+    st.divider()
+
+    # 5. Backup Download
+    st.subheader("📥 Backup Emission Data")
+
+    records = db.query(Emission).all()
+    if records:
+        df_backup = pd.DataFrame([{
+            "Year": rec.date.year,
+            "Month": rec.date.strftime("%B"),
+            "Facility": rec.facility,
+            "Category": rec.category,
+            "Emission (kg CO₂)": rec.value
+        } for rec in records])
+
+        backup_csv = df_backup.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📄 Download Emission Backup (CSV)",
+            data=backup_csv,
+            file_name="emission_backup.csv",
+            mime="text/csv"
+        )
+    else:
+        st.warning("No emission data available to backup.")
+
+    st.divider()
+
+    # 6. Emission Category Chart
+    st.subheader("📊 Emission Records by Category")
+    if records:
+        df_summary = pd.DataFrame([rec.category for rec in records], columns=["Category"])
+        category_counts = df_summary["Category"].value_counts()
+        st.bar_chart(category_counts)
+    else:
+        st.info("No emission data available for category summary.")

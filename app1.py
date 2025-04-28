@@ -545,7 +545,7 @@ elif menu == "Emission Analysis":
         "Month": rec.date.strftime("%B"),
         "Facility": rec.facility,
         "Category": rec.category,
-        "Emission": rec.valuel,
+        "Emission": rec.value,
         "Emissions (kg CO₂)": rec.value if rec.category != "Offset" else -rec.value    
     } for rec in records])
     

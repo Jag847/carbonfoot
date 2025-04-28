@@ -482,7 +482,7 @@ elif menu == "Carbon Metre":
         # Display gauge meters
         cols = st.columns(3)
         for idx, (category, emission) in enumerate(category_totals.items()):
-            with columns[idx % 3]:
+            with cols[idx % 3]:
                 with st.container():
                     card_class = "centered" if emission <= SAFE_LIMITS[category] else "centered-red"
                     st.markdown(f'<div class="{card_class}">', unsafe_allow_html=True)

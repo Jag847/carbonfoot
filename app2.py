@@ -904,7 +904,28 @@ elif menu == "Manage Database":
         st.warning("No emission data available to backup.")
 
     st.divider()
+ 
+    st.subheader("📥 Backup Users List")
 
+    users = db.query(User).all()
+
+    if users:
+        df_users = pd.DataFrame([{
+            "User ID": u.id,
+            "Username": u.name,
+            "Email": getattr(u, 'email', 'N/A')  # if your User model has email
+        } for u in users])
+
+        users_csv = df_users.to_csv(index=False).encode('utf-8')
+
+        st.download_button(
+            label="📄 Download Users Backup (CSV)",
+            data=users_csv,
+            file_name="users_backup.csv",
+            mime="text/csv"
+        )
+    else:
+        st.warning("No registered users found.")    
     # 6. Emission Category Chart
     st.subheader("📊 Emission Records by Category")
     if records:

@@ -60,6 +60,26 @@ from database import create_user, authenticate
 # Simple login/signup UI
 
 def login():
+    page_bg_img = '''
+    <style>
+    .stApp {
+        background-image: url("https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0");
+        background-size: cover;
+        background-position: center;
+    }
+    .login-box {
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 15px;
+        max-width: 400px;
+        margin: auto;
+        margin-top: 6rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    </style>
+    '''
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+
     st.title("Login or Sign Up")
     tab_login, tab_signup = st.tabs(["Login", "Sign Up"])
 

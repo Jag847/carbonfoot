@@ -11,6 +11,7 @@ import plotly.express as px
 import plotly.io as pio
 import io, zipfile
 import plotly.graph_objects as go
+from sqlalchemy import func
 
 FACILITIES = [
     "Residential Areas",
@@ -852,7 +853,7 @@ elif menu == "Manage Database":
 
     # 3. User-wise Emission Entry Count
     st.subheader("👤 Entries Per User")
-    user_emission_counts = db.query(User.name, db.func.count(Emission.id))\
+    user_emission_counts = db.query(User.name, func.count(Emission.id))\
                              .join(Emission, Emission.user_id == User.id)\
                              .group_by(User.name)\
                              .all()

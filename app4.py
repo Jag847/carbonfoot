@@ -148,7 +148,7 @@ if st.session_state.get("logged_in", False) and not st.session_state.get("starte
     # Get started button
     if st.button("🌍 Let's Get Started"):
         st.session_state.started = True
-        st.experimental_rerun()
+        st.rerun()
 
     st.stop()
 

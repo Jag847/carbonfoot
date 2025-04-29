@@ -106,7 +106,7 @@ if not st.session_state.get("logged_in", False):
 admin_username = "dhamarukanath"
 # 4. Sidebar menu
 menu_options = [
-    "Home"
+    "Home",
     "Carbon Data",
     "Carbon Metre",
     "Emission Analysis",

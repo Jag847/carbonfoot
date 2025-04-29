@@ -105,7 +105,7 @@ if not st.session_state.get("logged_in", False):
 
 
 # 3. Greeting & "Let’s get started" button
-if menu == "Home":
+if menu_options == "Home":
     name = st.session_state.get("username", "")
     st.write(f"👋 Welcome {name}, let’s get started with your Carbon Foot Calculator.")
 

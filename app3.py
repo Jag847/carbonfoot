@@ -103,19 +103,6 @@ if not st.session_state.get("logged_in", False):
     login()
     st.stop()
 
-
-# 3. Greeting & "Let’s get started" button
-if menu_options == "Home":
-    name = st.session_state.get("username", "")
-    st.write(f"👋 Welcome {name}, let’s get started with your Carbon Foot Calculator.")
-
-    if st.button("Let’s get started"):
-        st.session_state.started = True
-        st.experimental_rerun()  
-
-if not st.session_state.get("started"):
-    st.stop()
-
 admin_username = "dhamarukanath"
 # 4. Sidebar menu
 menu_options = [
@@ -134,9 +121,23 @@ menu = st.sidebar.radio("Menu", menu_options)
 if not st.session_state.get("started", False) and menu != "Home":
     st.warning("🚫 Please start from the Home tab.")
     st.stop()
-# 5. Get DB session & current user
+
+if menu == "Home":
+    name = st.session_state.get("username", "")
+    st.write(f"👋 Welcome {name}, let’s get started with your Carbon Foot Calculator.")
+
+    if st.button("Let’s get started"):
+        st.session_state.started = True
+        st.experimental_rerun()
+
+# 6. Continue rest of app only after this
+if not st.session_state.get("started"):
+    st.stop()
+
+# 7. Set up DB session and user
 db = Session()
-user = db.query(User).filter_by(name=name).first()
+user = db.query(User).filter_by(name=st.session_state["username"]).first()
+
 
 # Emission factor dictionaries
 emission_factors = {

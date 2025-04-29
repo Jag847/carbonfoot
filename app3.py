@@ -102,11 +102,59 @@ init_db()
 if not st.session_state.get("logged_in", False):
     login()
     st.stop()
+if st.session_state.get("logged_in", False) and not st.session_state.get("started", False):
+    # Set the background image and overlay box
+    page_bg_img = f"""
+    <style>
+    .stApp {{
+        background-image: url("https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0");
+        background-size: cover;
+        background-position: center;
+    }}
+    .overlay-box {{
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 15px;
+        max-width: 800px;
+        margin: auto;
+        margin-top: 5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }}
+    .username-tag {{
+        position: fixed;
+        top: 1rem;
+        right: 2rem;
+        background: #e0f2e9;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+    }}
+    </style>
+    """
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+
+    # Show username
+    st.markdown(f"<div class='username-tag'>👤 {st.session_state['username']}</div>", unsafe_allow_html=True)
+
+    # Welcome content
+    st.markdown("""
+        <div class="overlay-box">
+            <h1>🌱 Let's Take a Step Toward a Better Earth</h1>
+            <p>Reduce your carbon footprint, track emissions, and act sustainably.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Get started button
+    if st.button("🌍 Let's Get Started"):
+        st.session_state.started = True
+        st.experimental_rerun()
+
+    st.stop()
 
 admin_username = "dhamarukanath"
 # 4. Sidebar menu
 menu_options = [
-    "Home",
     "Carbon Data",
     "Carbon Metre",
     "Emission Analysis",
@@ -118,17 +166,7 @@ if st.session_state.get("username") == admin_username:
     menu_options.append("Manage Database")
 
 menu = st.sidebar.radio("Menu", menu_options)
-if not st.session_state.get("started", False) and menu != "Home":
-    st.warning("🚫 Please start from the Home tab.")
-    st.stop()
 
-if menu == "Home":
-    name = st.session_state.get("username", "")
-    st.write(f"👋 Welcome {name}, let’s get started with your Carbon Foot Calculator.")
-
-    if st.button("Let’s get started"):
-        st.session_state.started = True
-        st.experimental_rerun()
 
 # 6. Continue rest of app only after this
 if not st.session_state.get("started"):

@@ -105,10 +105,13 @@ if not st.session_state.get("logged_in", False):
 
 
 # 3. Greeting & "Let’s get started" button
-name = st.session_state.get("username", "")
-st.write(f"👋 Welcome {name}, let’s get started with your Carbon Foot Calculator.")
-if st.button("Let’s get started"):
-    st.session_state.started = True
+if menu == "Home":
+    name = st.session_state.get("username", "")
+    st.write(f"👋 Welcome {name}, let’s get started with your Carbon Foot Calculator.")
+
+    if st.button("Let’s get started"):
+        st.session_state.started = True
+        st.experimental_rerun()  
 
 if not st.session_state.get("started"):
     st.stop()
@@ -116,6 +119,7 @@ if not st.session_state.get("started"):
 admin_username = "dhamarukanath"
 # 4. Sidebar menu
 menu_options = [
+    "Home"
     "Carbon Data",
     "Carbon Metre",
     "Emission Analysis",
@@ -126,7 +130,10 @@ menu_options = [
 if st.session_state.get("username") == admin_username:
     menu_options.append("Manage Database")
 
-menu = st.sidebar.radio("Navigate", menu_options)
+menu = st.sidebar.radio("Menu", menu_options)
+if not st.session_state.get("started", False) and menu != "Home":
+    st.warning("🚫 Please start from the Home tab.")
+    st.stop()
 # 5. Get DB session & current user
 db = Session()
 user = db.query(User).filter_by(name=name).first()
